@@ -1,0 +1,5 @@
+/home/junghwalee/hand/tflite/build/CMakeFiles/Handmap.dir
+/home/junghwalee/hand/tflite/build/CMakeFiles/edit_cache.dir
+/home/junghwalee/hand/tflite/build/CMakeFiles/rebuild_cache.dir
+/home/junghwalee/hand/tflite/build/src/CMakeFiles/edit_cache.dir
+/home/junghwalee/hand/tflite/build/src/CMakeFiles/rebuild_cache.dir
