@@ -3,7 +3,8 @@
 
 int main() {
 
-    cv::VideoCapture cap(0, cv::CAP_V4L2);
+    //cv::VideoCapture cap(0, cv::CAP_V4L2);
+    cv::VideoCapture cap(0);
     if (!cap.isOpened()) {
         std::cerr << "카메라 열기 실패" << std::endl;
         return -1;
@@ -23,6 +24,13 @@ int main() {
 
     bool palmDetected = false;
     int lastMotionArea = 0;
+
+    // threshold 조절
+    int threshold_value = 40;
+    // 윈도우 생성
+    cv::namedWindow("Thresh");
+    // 트랙바 생성
+    cv::createTrackbar("Threshold", "Thresh", &threshold_value, 100); // 0 ~ 100 조절 가능
 
     while (true) {
         cap >> frame;
@@ -44,14 +52,14 @@ int main() {
 
         // 4. 변화 감지
         cv::absdiff(gray, avgGray, diff);
-        cv::threshold(diff, thresh, 40, 255, cv::THRESH_BINARY);
-        cv::erode(thresh, thresh, cv::Mat(), cv::Point(-1, -1), 2); // 침식
-        cv::dilate(thresh, thresh, cv::Mat(), cv::Point(-1, -1), 2); // 팽창
+        cv::threshold(diff, thresh, threshold_value, 255, cv::THRESH_BINARY);
+        cv::erode(thresh, thresh, cv::Mat(), cv::Point(-1, -1), 2);
+        cv::dilate(thresh, thresh, cv::Mat(), cv::Point(-1, -1), 2);
 
         // 5. minX, maxX 찾기
         std::vector<cv::Point> motionPoints;
         cv::findNonZero(thresh, motionPoints);
-        
+
         if (!motionPoints.empty()) {
             int minX = frame.cols;
             int maxX = 0;
@@ -60,20 +68,20 @@ int main() {
                 if (pt.x < minX) minX = pt.x;
                 if (pt.x > maxX) maxX = pt.x;
             }
-            // std::cout << "min: " << minX << ", max: " << maxX << std::endl;
+            //std::cout << "min: " << minX << ", max: " << maxX << std::endl;
 
             int area = motionPoints.size();
-            if(!palmDetected && lastMotionArea < 5000 && area > 12000) {
+            if (!palmDetected && lastMotionArea < 5000 && area > 12000) {
                 std::cout << "STOP" << std::endl;
                 palmDetected = true;
             }
 
-            if(palmDetected && area < 3000){
+            if (palmDetected && area < 3000) {
                 palmDetected = false;
             }
 
             lastMotionArea = area;
-            
+
             // left / right swipe 판정
             if (prevMinX != -1 && prevMaxX != -1) {
                 int dxMax = maxX - prevMaxX;
@@ -82,25 +90,26 @@ int main() {
                 if (dxMax > MOTION_THRESHOLD) {
                     motionScore = (motionScore >= 0) ? motionScore + 1 : 0;
                 }
-                else if(dxMin < -MOTION_THRESHOLD) {
-                  motionScore = (motionScore <= 0) ? motionScore - 1 : 0;
+                else if (dxMin < -MOTION_THRESHOLD) {
+                    motionScore = (motionScore <= 0) ? motionScore - 1 : 0;
                 }
                 else {
                     motionScore = 0;
                 }
 
                 if (motionScore >= MOTION_TRIGGER_SCORE) {
-                  std::cout << "LEFT" << std::endl;
+                    std::cout << "LEFT" << std::endl;
                     motionScore = 0;
                 }
-                else if(motionScore <= -MOTION_TRIGGER_SCORE) {
-                  std::cout << "RIGHT" << std::endl;
-                  motionScore = 0;
+                else if (motionScore <= -MOTION_TRIGGER_SCORE) {
+                    std::cout << "RIGHT" << std::endl;
+                    motionScore = 0;
                 }
             }
             prevMinX = minX;
             prevMaxX = maxX;
-        } else {
+        }
+        else {
             motionScore = 0;
         }
 
