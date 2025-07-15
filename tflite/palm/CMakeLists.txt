@@ -1,0 +1,10 @@
+target_sources(${APP_NAME}
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ModelLoader.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ModelLoader.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DetectionPostProcess.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DetectionPostProcess.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/HandDetection.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/HandDetection.hpp
+)
